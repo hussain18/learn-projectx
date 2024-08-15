@@ -42,7 +42,6 @@ func (t *LocalTransport) SendMessage(to NetAddr, payload []byte) error {
 		return fmt.Errorf("%s: could not send message to %s", t.addr, to)
 	}
 
-	fmt.Print("bha")
 	peer.consumeCh <- RPC{
 		from:    t.addr,
 		payload: payload,

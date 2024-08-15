@@ -18,6 +18,8 @@ type Server struct {
 func NewServer(opts ServerOpts) *Server {
 	return &Server{
 		ServerOpts: opts,
+		rpcCh:      make(chan RPC),
+		quitCh:     make(chan struct{}, 1),
 	}
 }
 
@@ -44,7 +46,6 @@ func (s *Server) initTransports() {
 	for _, tr := range s.Transports {
 		go func(tr Transport) {
 			for rpc := range tr.Consume() {
-				fmt.Printf("%+v\n", rpc)
 				s.rpcCh <- rpc
 			}
 		}(tr)
