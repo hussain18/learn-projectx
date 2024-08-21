@@ -24,44 +24,13 @@ func randomBlock(height uint32) *Block {
 	return NewBlock(h, []Transaction{tx})
 }
 
-// func TestHeader_Encode_Decode(t *testing.T) {
-// 	h := &Header{
-// 		Version:   1,
-// 		PrevBlock: types.RandomHashFromBytes(),
-// 		Timestamp: uint64(time.Now().UnixNano()),
-// 		Height:    10,
-// 		Nonce:     24354,
-// 	}
+func randomBlockWithSignature(t *testing.T, height uint32) *Block {
+	privKey := crypto.GeneratePrivateKey()
+	b := randomBlock(height)
 
-// 	buf := &bytes.Buffer{}
-// 	assert.Nil(t, h.EncodeBinary(buf))
-
-// 	hDecode := &Header{}
-// 	assert.Nil(t, hDecode.DecodeBinary(buf))
-// 	assert.Equal(t, h, hDecode)
-// }
-
-// func TestBlock_Encode_Decode(t *testing.T) {
-// 	h := &Header{
-// 		Version:   1,
-// 		PrevBlock: types.RandomHashFromBytes(),
-// 		Timestamp: uint64(time.Now().UnixNano()),
-// 		Height:    10,
-// 		Nonce:     24354,
-// 	}
-
-// 	b := &Block{
-// 		Header:       *h,
-// 		Transactions: nil,
-// 	}
-
-// 	buf := &bytes.Buffer{}
-// 	assert.Nil(t, b.EncodeBinary(buf))
-
-// 	bDecode := &Block{}
-// 	assert.Nil(t, bDecode.DecodeBinary(buf))
-// 	assert.Equal(t, b, bDecode)
-// }
+	assert.Nil(t, b.Sign(privKey))
+	return b
+}
 
 func TestBlockHash(t *testing.T) {
 	b := randomBlock(1)
