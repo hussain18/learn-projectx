@@ -9,31 +9,41 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func randomBlock(height uint32) *Block {
-	h := &Header{
-		Version:       1,
-		PrevBlockHash: types.RandomHashFromBytes(),
-		Timestamp:     uint64(time.Now().UnixNano()),
-		Height:        height,
+func randomBlock(t *testing.T, height uint32, prevBlockHash types.Hash) *Block {
+	b := &Block{
+		Header: &Header{
+			Version:       1,
+			PrevBlockHash: prevBlockHash,
+			Timestamp:     uint64(time.Now().UnixNano()),
+			Height:        height,
+		},
 	}
+	b.AddTransaction(randomTxWithSignature(t))
 
-	tx := Transaction{
-		Data: []byte("Hey there"),
-	}
-
-	return NewBlock(h, []Transaction{tx})
+	return b
 }
 
-func randomBlockWithSignature(t *testing.T, height uint32) *Block {
+func randomBlockWithSignature(t *testing.T, height uint32, prevBlockHash types.Hash) *Block {
 	privKey := crypto.GeneratePrivateKey()
-	b := randomBlock(height)
+	b := randomBlock(t, height, prevBlockHash)
 
 	assert.Nil(t, b.Sign(privKey))
 	return b
 }
 
+/* -------------------------- My Idea was stupid!!! ------------------------- */
+
+// func randomBlockWithPrevHash(t *testing.T, height uint32, prevBlockHash types.Hash) *Block {
+// 	b := randomBlockWithSignature(t, height)
+// 	b.PrevBlockHash = prevBlockHash
+
+// 	return b
+// }
+
+/* -------------------------- My Idea was stupid!!! ------------------------- */
+
 func TestBlockHash(t *testing.T) {
-	b := randomBlock(1)
+	b := randomBlock(t, 1, types.Hash{})
 
 	hash := b.Hash(BlockHasher{})
 	assert.False(t, hash.IsZero())
@@ -44,20 +54,20 @@ func TestSignBlock(t *testing.T) {
 	privKey := crypto.GeneratePrivateKey()
 	pubKey := privKey.PublicKey()
 
-	b := randomBlock(1)
+	b := randomBlock(t, 1, types.Hash{})
 
 	assert.Nil(t, b.Sign(privKey))
 	assert.NotNil(t, b.Signature)
 
 	assert.Equal(t, pubKey, b.Validator)
-	assert.True(t, b.Signature.Verify(pubKey, b.HeaderBytes()))
+	assert.True(t, b.Signature.Verify(pubKey, b.Header.Bytes()))
 }
 
 func TestVerifyBlock(t *testing.T) {
 	privKey := crypto.GeneratePrivateKey()
 	pubKey := privKey.PublicKey()
 
-	b := randomBlock(1)
+	b := randomBlock(t, 1, types.Hash{})
 
 	assert.Nil(t, b.Sign(privKey))
 	assert.Nil(t, b.Verify())
