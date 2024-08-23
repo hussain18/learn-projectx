@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hussain18/learn-projectx/crypto"
+	"github.com/hussain18/learn-projectx/types"
 )
 
 type Transaction struct {
@@ -11,6 +12,22 @@ type Transaction struct {
 
 	From      crypto.PublicKey
 	Signature *crypto.Signature
+
+	hash types.Hash
+}
+
+func NewTransaction(data []byte) *Transaction {
+	return &Transaction{
+		Data: data,
+	}
+}
+
+func (t *Transaction) Hash(hasher Hasher[*Transaction]) types.Hash {
+	if t.hash.IsZero() {
+		t.hash = hasher.Hash(t)
+	}
+
+	return t.hash
 }
 
 func (t *Transaction) Sign(privKey crypto.PrivateKey) error {
