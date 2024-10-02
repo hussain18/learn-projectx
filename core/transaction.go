@@ -13,13 +13,23 @@ type Transaction struct {
 	From      crypto.PublicKey
 	Signature *crypto.Signature
 
-	hash types.Hash
+	hash      types.Hash
+	firstSeen int64
 }
 
 func NewTransaction(data []byte) *Transaction {
 	return &Transaction{
 		Data: data,
+		// firstSeen: time.Now().Unix(),
 	}
+}
+
+func (t *Transaction) SetFirstSeen(time int64) {
+	t.firstSeen = time
+}
+
+func (t *Transaction) FirstSeen() int64 {
+	return t.firstSeen
 }
 
 func (t *Transaction) Hash(hasher Hasher[*Transaction]) types.Hash {
@@ -52,6 +62,14 @@ func (t *Transaction) Verify() error {
 	}
 
 	return nil
+}
+
+func (tx *Transaction) Encode(enc Encoder[*Transaction]) error {
+	return enc.Encode(tx)
+}
+
+func (tx *Transaction) Decode(dec Decoder[*Transaction]) error {
+	return dec.Decode(tx)
 }
 
 // func (t *Transaction) EncodeBinary(w io.Writer) error { return nil }
