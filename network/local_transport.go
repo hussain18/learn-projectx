@@ -1,6 +1,7 @@
 package network
 
 import (
+	"bytes"
 	"fmt"
 	"sync"
 )
@@ -43,8 +44,8 @@ func (t *LocalTransport) SendMessage(to NetAddr, payload []byte) error {
 	}
 
 	peer.consumeCh <- RPC{
-		from:    t.addr,
-		payload: payload,
+		From:    t.addr,
+		Payload: bytes.NewReader(payload),
 	}
 
 	return nil
